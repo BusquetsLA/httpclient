@@ -7,12 +7,16 @@ import (
 )
 
 func main() {
-	// httpMethod := "GET"
+	httpMethod := "GET"
 	url := "https://api.github.com"
 
 	client := http.Client{}
 
-	response, err := client.Get(url)
+	request, err := http.NewRequest(httpMethod, url, nil)
+
+	request.Header.Set("Accept", "application/json") // The Accept header tells the server the response content type you can understand.
+
+	response, err := client.Do(request)
 	if err != nil {
 		panic(err)
 	}
