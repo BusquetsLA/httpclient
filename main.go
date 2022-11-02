@@ -17,12 +17,11 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(response.StatusCode)
-
+	defer response.Body.Close() // A defer statement defers the execution of a function until the surrounding function returns.
 	bytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(string(bytes))
+	fmt.Printf("Status code recieved: %v, Response Body: %v", response.StatusCode, string(bytes))
 }
