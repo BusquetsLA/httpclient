@@ -8,7 +8,7 @@ import (
 
 func main() {
 	httpMethod := "GET"
-	url := "https://api.github.com"
+	url := "http://localhost:8080"
 
 	client := http.Client{}
 
