@@ -13,12 +13,28 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 		return nil, errors.New("unable to create new request")
 	}
 
-	// addign custom headers for every method
-	for header, value := range headers {
-		if len(value) > 0 { // to avoid a panic if header comes empty
-			request.Header.Set(header, value[0])
+	allHeaders := c.getRequestHeaders(headers)
+	request.Header = allHeaders
+
+	return client.Do(request)
+}
+
+func (c *httpClient) getRequestHeaders(headers http.Header) http.Header {
+	result := make(http.Header)
+
+	// addign standard headers for every method
+	for header, value := range c.Headers {
+		if len(value) > 0 {
+			result.Set(header, value[0])
 		}
 	}
 
-	return client.Do(request)
+	// addign custom headers for every method
+	for header, value := range headers {
+		if len(value) > 0 { // to avoid a panic if header comes empty
+			result.Set(header, value[0])
+		}
+	}
+
+	return result
 }
