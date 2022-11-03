@@ -27,6 +27,5 @@ go.work
 
 # my ugly files:
 old-files
-example.go
 
 # End of https://www.toptal.com/developers/gitignore/api/go
