@@ -1,6 +1,9 @@
 package httpgo
 
 import (
+	"bytes"
+	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"net/http"
 )
@@ -8,13 +11,19 @@ import (
 func (c *httpClient) do(method string, url string, headers http.Header, body interface{}) (*http.Response, error) {
 	client := http.Client{}
 
-	request, err := http.NewRequest(method, url, nil)
+	requestHeaders := c.getRequestHeaders(headers) // moved here to have acccess to the headers before creating the request to make the request body
+
+	requestBody, err := c.getRequestBody(requestHeaders.Get("Content-Type"), body)
+	if err != nil {
+		return nil, errors.New("unable to create request body")
+	}
+
+	request, err := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, errors.New("unable to create new request")
 	}
 
-	allHeaders := c.getRequestHeaders(headers)
-	request.Header = allHeaders
+	request.Header = requestHeaders
 
 	return client.Do(request)
 }
@@ -37,4 +46,19 @@ func (c *httpClient) getRequestHeaders(headers http.Header) http.Header {
 	}
 
 	return result
+}
+
+func (c *httpClient) getRequestBody(contentType string, body interface{}) ([]byte, error) {
+	if body == nil {
+		return nil, nil
+	}
+
+	switch contentType {
+	case "application/json":
+		return json.Marshal(body)
+	case "application/xml":
+		return xml.Marshal(body)
+	default:
+		return json.Marshal(body) // TODO: add more cases
+	}
 }
