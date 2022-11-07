@@ -18,14 +18,12 @@ func TestGetRequestHeaders(t *testing.T) { // rule of thumb for % of coverage: 1
 		{"Accept", "*/*"},
 	}
 	requestHeaders := make(http.Header)
-	client.Headers = requestHeaders
-	headers := make(http.Header)
 	for _, tt := range tests {
 		requestHeaders.Set(tt.name, tt.want)
 	}
 
 	// Execution:
-	finalHeaders := client.getRequestHeaders(headers) // the final list with every added header
+	finalHeaders := client.getRequestHeaders(requestHeaders) // the final list with every added header
 
 	// Validation:
 	want := len(tests) // amount of headers set in the test
