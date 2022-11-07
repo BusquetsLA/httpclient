@@ -8,29 +8,36 @@ import (
 func TestGetRequestHeaders(t *testing.T) { // rule of thumb for % of coverage: 1 test case for every return that the function has
 	// Initialization:
 	client := httpClient{}
+
+	tests := []struct {
+		name string
+		want string
+	}{
+		{"Content-Type", "application/json"},
+		{"User-Agent", "BusquetsLA"},
+		{"Accept", "*/*"},
+	}
 	requestHeaders := make(http.Header)
-	requestHeaders.Set("Content-Type", "application/json") // 1
-	requestHeaders.Set("User-Agent", "BusquetsLA")         // 2
 	client.Headers = requestHeaders
+	headers := make(http.Header)
+	for _, tt := range tests {
+		requestHeaders.Set(tt.name, tt.want)
+	}
 
 	// Execution:
-	headers := make(http.Header)
-	headers.Set("Accept", "*/*")                      // 3
 	finalHeaders := client.getRequestHeaders(headers) // the final list with every added header
 
 	// Validation:
-	want := 3 // amount of headers set in the test
+	want := len(tests) // amount of headers set in the test
 	if got := len(finalHeaders); got != want {
-		t.Error("expected 3 headers") // this can still be HIGHLY improved
+		t.Errorf("expected %d headers, got %d", want, got)
 	}
-	if finalHeaders.Get("Content-Type") != "application/json" {
-		t.Error("invalid content type recieved")
-	}
-	if finalHeaders.Get("User-Agent") != "BusquetsLA" {
-		t.Error("invalid user agent recieved")
-	}
-	if finalHeaders.Get("Accept") != "*/*" {
-		t.Error("invalid accept recieved")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := finalHeaders.Get(tt.name); got != tt.want {
+				t.Errorf("invalid %s header recieved", tt.name)
+			}
+		})
 	}
 }
 
