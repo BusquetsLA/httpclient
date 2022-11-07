@@ -10,8 +10,8 @@ func TestGetRequestHeaders(t *testing.T) { // rule of thumb for % of coverage: 1
 	client := httpClient{}
 
 	tests := []struct {
-		name string
-		want string
+		name string // key of the header
+		want string // value of the header
 	}{
 		{"Content-Type", "application/json"},
 		{"User-Agent", "BusquetsLA"},
