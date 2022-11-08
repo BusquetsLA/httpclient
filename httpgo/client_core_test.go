@@ -40,13 +40,11 @@ func TestGetRequestHeaders(t *testing.T) { // rule of thumb for % of coverage: 1
 }
 
 func TestGetRequestBody(t *testing.T) {
-	// Initialization:
 	client := httpClient{}
 
-	t.Run("nil Body response: ", func(t *testing.T) {
-		// Execution:
+	// first for nil body
+	t.Run("nil Body response", func(t *testing.T) {
 		body, err := client.getRequestBody("", nil)
-		// Validation:
 		if err != nil {
 			t.Error("expected no error when passing nil body")
 		}
@@ -54,41 +52,29 @@ func TestGetRequestBody(t *testing.T) {
 			t.Error("expected nil body when passing nil body")
 		}
 	})
-	t.Run("JSON Body response: ", func(t *testing.T) {
-		requestBody := []string{"pauli", "brujita"}
-		body, err := client.getRequestBody("application/json", requestBody)
 
-		expected := (string(body))
-
-		if err != nil {
-			t.Error("expected no error when marshaling slice as JSON")
-		}
-		if string(body) != `["pauli","brujita"]` {
-			t.Errorf("expected %v, invalid JSON body obtained", expected)
-		}
-	})
-	t.Run("XML Body response: ", func(t *testing.T) {
-		requestBody := []string{"pauli", "brujita"}
-		body, err := client.getRequestBody("application/xml", requestBody)
-		expected := (string(body))
-
-		if err != nil {
-			t.Error("expected no error when marshaling slice as JSON")
-		}
-		if string(body) != `<string>pauli</string><string>brujita</string>` {
-			t.Errorf("expected %v, invalid XML body obtained", expected)
-		}
-	})
-	t.Run("default Body response: ", func(t *testing.T) {
-		requestBody := []string{"pauli", "brujita"}
-		body, err := client.getRequestBody("content/type", requestBody)
-		expected := (string(body))
-
-		if err != nil {
-			t.Error("expected no error when marshaling slice as JSON")
-		}
-		if string(body) != `["pauli","brujita"]` {
-			t.Errorf("expected %v, invalid JSON body obtained", expected)
-		}
-	})
+	// then the rest of test cases
+	requestBody := []string{"pauli", "brujita"}
+	tests := []struct {
+		contentType string // key of the header
+		want        string // value of the header
+	}{
+		// {"", nil}
+		{"application/json", `["pauli","brujita"]`},
+		{"application/xml", `<string>pauli</string><string>brujita</string>`},
+		{"default/contentType", `["pauli","brujita"]`},
+		{"", `["pauli","brujita"]`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.contentType, func(t *testing.T) {
+			got, err := client.getRequestBody(tt.contentType, requestBody)
+			// expected := (string(got)) // to see what we should be getting
+			if err != nil {
+				t.Errorf("expected no error when passing %s body for %s content type", tt.want, tt.contentType)
+			}
+			if string(got) != (string(tt.want)) {
+				t.Errorf("expected %s body when passing that content type", tt.contentType)
+			}
+		})
+	}
 }
