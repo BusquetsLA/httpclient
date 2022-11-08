@@ -7,8 +7,11 @@ import (
 )
 
 type httpClient struct {
-	client  *http.Client
-	Headers http.Header // default headers from http pkg
+	client       *http.Client
+	Headers      http.Header // default headers from http pkg
+	connTimeout  time.Duration
+	reqTimeout   time.Duration
+	maxIdleConns int
 }
 
 func New() HttpClient { // single http client being used every time for every request
@@ -29,6 +32,9 @@ func New() HttpClient { // single http client being used every time for every re
 
 type HttpClient interface {
 	SetHeaders(headers http.Header)
+	SetConnTimeout(timeout time.Duration)
+	SetReqTimeout(timeout time.Duration)
+	SetMaxIdleConns(maxConns int)
 
 	Get(url string, headers http.Header) (*http.Response, error)
 	Post(url string, headers http.Header, body interface{}) (*http.Response, error)
@@ -40,6 +46,20 @@ type HttpClient interface {
 func (c *httpClient) SetHeaders(headers http.Header) {
 	c.Headers = headers
 }
+
+func (c *httpClient) SetConnTimeout(timeout time.Duration) {
+	c.connTimeout = timeout
+}
+
+func (c *httpClient) SetReqTimeout(timeout time.Duration) {
+	c.reqTimeout = timeout
+}
+
+func (c *httpClient) SetMaxIdleConns(maxConns int) {
+	c.maxIdleConns = maxConns
+}
+
+// HTTP Methods:
 
 func (c *httpClient) Get(url string, headers http.Header) (*http.Response, error) {
 	return c.do(http.MethodGet, url, headers, nil)
