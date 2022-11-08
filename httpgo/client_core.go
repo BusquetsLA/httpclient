@@ -5,7 +5,15 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
+	"net"
 	"net/http"
+	"time"
+)
+
+const (
+	defaultMaxIdleConn = 5
+	defaultResTimeout  = 5 * time.Second
+	defaultConnTimeout = 1 * time.Second
 )
 
 func (c *httpClient) do(method string, url string, headers http.Header, body interface{}) (*http.Response, error) {
@@ -22,8 +30,27 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 	}
 
 	request.Header = requestHeaders
+	client := c.getHttpClient()
 
-	return c.client.Do(request)
+	return client.Do(request)
+}
+
+func (c *httpClient) getHttpClient() *http.Client {
+	if c.client != nil {
+		return c.client
+	}
+
+	c.client = &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConnsPerHost:   c.getMaxIdleConn(), // this number should be based solely on the traffic pattern that you have in your application
+			ResponseHeaderTimeout: c.getResTimeout(),  // max amount of time to wait for a response when a request is sent
+			DialContext: (&net.Dialer{
+				Timeout: c.getConnTimeout(),
+			}).DialContext, // to set max amount of time to wait for a given connection
+		},
+	}
+
+	return c.client
 }
 
 func (c *httpClient) getRequestHeaders(headers http.Header) http.Header {
@@ -59,4 +86,25 @@ func (c *httpClient) getRequestBody(contentType string, body interface{}) ([]byt
 	default:
 		return json.Marshal(body) // TODO: add more cases
 	}
+}
+
+func (c *httpClient) getMaxIdleConn() int {
+	if c.maxIdleConns > 0 {
+		return c.maxIdleConns
+	}
+	return defaultMaxIdleConn
+}
+
+func (c *httpClient) getResTimeout() time.Duration {
+	if c.resTimeout > 0 {
+		return c.resTimeout
+	}
+	return defaultResTimeout
+}
+
+func (c *httpClient) getConnTimeout() time.Duration {
+	if c.connTimeout > 0 {
+		return c.connTimeout
+	}
+	return defaultConnTimeout
 }

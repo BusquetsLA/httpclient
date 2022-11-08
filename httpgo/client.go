@@ -1,7 +1,6 @@
 package httpgo
 
 import (
-	"net"
 	"net/http"
 	"time"
 )
@@ -10,30 +9,19 @@ type httpClient struct {
 	client       *http.Client
 	Headers      http.Header // default headers from http pkg
 	connTimeout  time.Duration
-	reqTimeout   time.Duration
+	resTimeout   time.Duration
 	maxIdleConns int
 }
 
 func New() HttpClient { // single http client being used every time for every request
-	client := http.Client{
-		Transport: &http.Transport{
-			MaxIdleConnsPerHost:   5,                                                   // this number should be based solely on the traffic pattern that you have in your application
-			ResponseHeaderTimeout: 5 * time.Second,                                     // max amount of time to wait for a response when a request is sent
-			DialContext:           (&net.Dialer{Timeout: 1 * time.Second}).DialContext, // to set max amount of time to wait for a given connection
-		},
-	}
-
-	httpClient := &httpClient{
-		client: &client,
-	}
-
+	httpClient := &httpClient{}
 	return httpClient
 }
 
 type HttpClient interface {
 	SetHeaders(headers http.Header)
 	SetConnTimeout(timeout time.Duration)
-	SetReqTimeout(timeout time.Duration)
+	SetResTimeout(timeout time.Duration)
 	SetMaxIdleConns(maxConns int)
 
 	Get(url string, headers http.Header) (*http.Response, error)
@@ -51,8 +39,8 @@ func (c *httpClient) SetConnTimeout(timeout time.Duration) {
 	c.connTimeout = timeout
 }
 
-func (c *httpClient) SetReqTimeout(timeout time.Duration) {
-	c.reqTimeout = timeout
+func (c *httpClient) SetResTimeout(timeout time.Duration) {
+	c.resTimeout = timeout
 }
 
 func (c *httpClient) SetMaxIdleConns(maxConns int) {
