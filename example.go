@@ -51,10 +51,15 @@ func getGithubUrls() {
 	fmt.Printf("status code recieved: %v, response body: %v", response.StatusCode, string(bytes))
 }
 
-func getGithubClient() httpgo.HttpClient { // just to set the headers
+func getGithubClient() httpgo.HttpClient {
 	client := httpgo.New()
+
+	// client.SetConnTimeout(2 * time.Second)
+	// client.SetResTimeout(50 * time.Millisecond) // this would return timeout
+
 	standardHeaders := make(http.Header)
 	standardHeaders.Set("Accept", "application/json")
 	client.SetHeaders(standardHeaders)
+
 	return client
 }
