@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"net/http"
+	"time"
 
 	"github.com/BusquetsLA/httpclient/httpgo"
 )
@@ -51,15 +51,22 @@ func getGithubUrls() {
 	fmt.Printf("status code recieved: %v, response body: %v", response.StatusCode, string(bytes))
 }
 
-func getGithubClient() httpgo.HttpClient {
-	client := httpgo.New()
+func getGithubClient() httpgo.Client {
+	client := httpgo.New().
+		SetConnTimeout(2 * time.Second).
+		DisableTimeouts(true).
+		SetResTimeout(50 * time.Millisecond).
+		Build() // to create a client with all the configuration from the begining, has to end with Build()
 
-	// client.SetConnTimeout(2 * time.Second)
-	// client.SetResTimeout(50 * time.Millisecond) // this would return timeout
+	// builder := httpgo.New()
 
-	standardHeaders := make(http.Header)
-	standardHeaders.Set("Accept", "application/json")
-	client.SetHeaders(standardHeaders)
+	// builder.DisableTimeouts(true)
+	// builder.SetConnTimeout(2 * time.Second)
+	// builder.SetResTimeout(50 * time.Millisecond) // this would return timeout
+	// // builder.SetHeaders(standardHeaders)
+
+	// standardHeaders := make(http.Header)
+	// standardHeaders.Set("Accept", "application/json")
 
 	return client
 }
