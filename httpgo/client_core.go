@@ -58,7 +58,7 @@ func (c *httpClient) getRequestHeaders(headers http.Header) http.Header {
 	result := make(http.Header)
 
 	// addign standard headers for every method
-	for header, value := range c.Headers {
+	for header, value := range c.headers {
 		if len(value) > 0 {
 			result.Set(header, value[0])
 		}
@@ -100,7 +100,7 @@ func (c *httpClient) getResTimeout() time.Duration {
 	if c.resTimeout > 0 {
 		return c.resTimeout
 	}
-	if c.disTimeouts {
+	if c.disTimeout {
 		return 0
 	}
 	return defaultResTimeout
@@ -110,7 +110,7 @@ func (c *httpClient) getConnTimeout() time.Duration {
 	if c.connTimeout > 0 {
 		return c.connTimeout
 	}
-	if c.disTimeouts {
+	if c.disTimeout {
 		return 0
 	}
 	return defaultConnTimeout

@@ -7,27 +7,14 @@ import (
 
 type httpClient struct {
 	client       *http.Client
-	Headers      http.Header // default headers from http pkg
+	headers      http.Header // default headers from http pkg
 	connTimeout  time.Duration
 	resTimeout   time.Duration
 	maxIdleConns int
-	disTimeouts  bool
+	disTimeout   bool
 }
 
-func New() HttpClient { // single http client being used every time for every request
-	httpClient := &httpClient{}
-	return httpClient
-}
-
-type HttpClient interface {
-	// methods for configuration, should be defined only when creating the client
-	SetHeaders(headers http.Header)
-	SetConnTimeout(timeout time.Duration)
-	SetResTimeout(timeout time.Duration)
-	SetMaxIdleConns(maxConns int)
-	DisableTimeouts(disTimeouts bool)
-
-	// methods for http calls:
+type Client interface {
 	Get(url string, headers http.Header) (*http.Response, error)
 	Post(url string, headers http.Header, body interface{}) (*http.Response, error)
 	Put(url string, headers http.Header, body interface{}) (*http.Response, error)
@@ -35,28 +22,7 @@ type HttpClient interface {
 	Delete(url string, headers http.Header) (*http.Response, error)
 }
 
-func (c *httpClient) SetHeaders(headers http.Header) {
-	c.Headers = headers
-}
-
-func (c *httpClient) SetConnTimeout(timeout time.Duration) {
-	c.connTimeout = timeout
-}
-
-func (c *httpClient) SetResTimeout(timeout time.Duration) {
-	c.resTimeout = timeout
-}
-
-func (c *httpClient) SetMaxIdleConns(maxConns int) {
-	c.maxIdleConns = maxConns
-}
-
-func (c *httpClient) DisableTimeouts(disTimeouts bool) {
-	c.disTimeouts = disTimeouts
-}
-
-// HTTP Methods:
-
+// HTTP Call Methods:
 func (c *httpClient) Get(url string, headers http.Header) (*http.Response, error) {
 	return c.do(http.MethodGet, url, headers, nil)
 }
