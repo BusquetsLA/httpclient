@@ -11,6 +11,7 @@ type httpClient struct {
 	connTimeout  time.Duration
 	resTimeout   time.Duration
 	maxIdleConns int
+	disTimeouts  bool
 }
 
 func New() HttpClient { // single http client being used every time for every request
@@ -19,11 +20,14 @@ func New() HttpClient { // single http client being used every time for every re
 }
 
 type HttpClient interface {
+	// methods for configuration, should be defined only when creating the client
 	SetHeaders(headers http.Header)
 	SetConnTimeout(timeout time.Duration)
 	SetResTimeout(timeout time.Duration)
 	SetMaxIdleConns(maxConns int)
+	DisableTimeouts(disTimeouts bool)
 
+	// methods for http calls:
 	Get(url string, headers http.Header) (*http.Response, error)
 	Post(url string, headers http.Header, body interface{}) (*http.Response, error)
 	Put(url string, headers http.Header, body interface{}) (*http.Response, error)
@@ -45,6 +49,10 @@ func (c *httpClient) SetResTimeout(timeout time.Duration) {
 
 func (c *httpClient) SetMaxIdleConns(maxConns int) {
 	c.maxIdleConns = maxConns
+}
+
+func (c *httpClient) DisableTimeouts(disTimeouts bool) {
+	c.disTimeouts = disTimeouts
 }
 
 // HTTP Methods:

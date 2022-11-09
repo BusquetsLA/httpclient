@@ -41,6 +41,7 @@ func (c *httpClient) getHttpClient() *http.Client {
 	}
 
 	c.client = &http.Client{
+		Timeout: c.getConnTimeout() + c.getResTimeout(), // to configure the overall client timeout
 		Transport: &http.Transport{
 			MaxIdleConnsPerHost:   c.getMaxIdleConn(), // this number should be based solely on the traffic pattern that you have in your application
 			ResponseHeaderTimeout: c.getResTimeout(),  // max amount of time to wait for a response when a request is sent
@@ -99,12 +100,18 @@ func (c *httpClient) getResTimeout() time.Duration {
 	if c.resTimeout > 0 {
 		return c.resTimeout
 	}
+	if c.disTimeouts {
+		return 0
+	}
 	return defaultResTimeout
 }
 
 func (c *httpClient) getConnTimeout() time.Duration {
 	if c.connTimeout > 0 {
 		return c.connTimeout
+	}
+	if c.disTimeouts {
+		return 0
 	}
 	return defaultConnTimeout
 }
