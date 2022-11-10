@@ -2,11 +2,13 @@ package httpgo
 
 import (
 	"net/http"
+	"sync"
 )
 
 type httpClient struct {
-	client  *http.Client
-	builder *clientBuilder
+	client     *http.Client
+	builder    *clientBuilder
+	clientOnce sync.Once
 }
 
 type Client interface {

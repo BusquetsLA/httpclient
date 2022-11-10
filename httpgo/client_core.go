@@ -36,20 +36,18 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 }
 
 func (c *httpClient) getHttpClient() *http.Client {
-	if c.client != nil {
-		return c.client
-	}
-
-	c.client = &http.Client{
-		Timeout: c.getConnTimeout() + c.getResTimeout(), // to configure the overall client timeout
-		Transport: &http.Transport{
-			MaxIdleConnsPerHost:   c.getMaxIdleConn(), // this number should be based solely on the traffic pattern that you have in your application
-			ResponseHeaderTimeout: c.getResTimeout(),  // max amount of time to wait for a response when a request is sent
-			DialContext: (&net.Dialer{
-				Timeout: c.getConnTimeout(),
-			}).DialContext, // to set max amount of time to wait for a given connection
-		},
-	}
+	c.clientOnce.Do(func() { // to make the client concurrent safe
+		c.client = &http.Client{
+			Timeout: c.getConnTimeout() + c.getResTimeout(), // to configure the overall client timeout
+			Transport: &http.Transport{
+				MaxIdleConnsPerHost:   c.getMaxIdleConn(), // this number should be based solely on the traffic pattern that you have in your application
+				ResponseHeaderTimeout: c.getResTimeout(),  // max amount of time to wait for a response when a request is sent
+				DialContext: (&net.Dialer{
+					Timeout: c.getConnTimeout(),
+				}).DialContext, // to set max amount of time to wait for a given connection
+			},
+		}
+	})
 
 	return c.client
 }
