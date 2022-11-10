@@ -20,7 +20,12 @@ type User struct {
 func main() {
 	lauti := User{"lauti", "busquets"}
 	createUser(lauti)
-	getGithubUrls()
+
+	for i := 0; i < 10; i++ {
+		go func() {
+			getGithubUrls()
+		}()
+	}
 }
 
 func createUser(user User) {
@@ -55,7 +60,6 @@ func getGithubClient() httpgo.Client {
 	client := httpgo.New().
 		SetConnTimeout(2 * time.Second).
 		DisableTimeouts(true).
-		SetResTimeout(50 * time.Millisecond).
 		Build() // to create a client with all the configuration from the begining, has to end with Build()
 
 	// builder := httpgo.New()
