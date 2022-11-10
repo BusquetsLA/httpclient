@@ -2,16 +2,11 @@ package httpgo
 
 import (
 	"net/http"
-	"time"
 )
 
 type httpClient struct {
-	client       *http.Client
-	headers      http.Header // default headers from http pkg
-	connTimeout  time.Duration
-	resTimeout   time.Duration
-	maxIdleConns int
-	disTimeout   bool
+	client  *http.Client
+	builder *clientBuilder
 }
 
 type Client interface {

@@ -58,7 +58,7 @@ func (c *httpClient) getRequestHeaders(headers http.Header) http.Header {
 	result := make(http.Header)
 
 	// addign standard headers for every method
-	for header, value := range c.headers {
+	for header, value := range c.builder.headers {
 		if len(value) > 0 {
 			result.Set(header, value[0])
 		}
@@ -90,27 +90,27 @@ func (c *httpClient) getRequestBody(contentType string, body interface{}) ([]byt
 }
 
 func (c *httpClient) getMaxIdleConn() int {
-	if c.maxIdleConns > 0 {
-		return c.maxIdleConns
+	if c.builder.maxIdleConns > 0 {
+		return c.builder.maxIdleConns
 	}
 	return defaultMaxIdleConn
 }
 
 func (c *httpClient) getResTimeout() time.Duration {
-	if c.resTimeout > 0 {
-		return c.resTimeout
+	if c.builder.resTimeout > 0 {
+		return c.builder.resTimeout
 	}
-	if c.disTimeout {
+	if c.builder.disTimeout {
 		return 0
 	}
 	return defaultResTimeout
 }
 
 func (c *httpClient) getConnTimeout() time.Duration {
-	if c.connTimeout > 0 {
-		return c.connTimeout
+	if c.builder.connTimeout > 0 {
+		return c.builder.connTimeout
 	}
-	if c.disTimeout {
+	if c.builder.disTimeout {
 		return 0
 	}
 	return defaultConnTimeout

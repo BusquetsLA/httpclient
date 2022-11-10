@@ -30,11 +30,7 @@ func New() ClientBuilder { // single http client being used every time for every
 
 func (c *clientBuilder) Build() Client {
 	client := httpClient{
-		headers:      c.headers,
-		maxIdleConns: c.maxIdleConns,
-		connTimeout:  c.connTimeout,
-		resTimeout:   c.resTimeout,
-		disTimeout:   c.disTimeout,
+		builder: c,
 	}
 	return &client
 }
