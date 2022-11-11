@@ -59,7 +59,6 @@ func TestGetRequestBody(t *testing.T) {
 		contentType string // key of the header
 		want        string // value of the header
 	}{
-		// {"", nil}
 		{"application/json", `["pauli","brujita"]`},
 		{"application/xml", `<string>pauli</string><string>brujita</string>`},
 		{"default/contentType", `["pauli","brujita"]`},
@@ -78,3 +77,9 @@ func TestGetRequestBody(t *testing.T) {
 		})
 	}
 }
+
+// func TestDo(t *testing.T)             {}
+// func TestGetHttpClient(t *testing.T)  {}
+// func TestGetResTimeout(t *testing.T)  {}
+// func TestGetConnTimeout(t *testing.T) {}
+// func TestGetMaxIdleConn(t *testing.T) {}

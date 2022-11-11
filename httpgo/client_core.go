@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"errors"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
@@ -16,7 +17,7 @@ const (
 	defaultConnTimeout = 1 * time.Second
 )
 
-func (c *httpClient) do(method string, url string, headers http.Header, body interface{}) (*http.Response, error) {
+func (c *httpClient) do(method string, url string, headers http.Header, body interface{}) (*Response, error) {
 	requestHeaders := c.getRequestHeaders(headers) // moved here to have acccess to the headers before creating the request to make the request body
 
 	requestBody, err := c.getRequestBody(requestHeaders.Get("Content-Type"), body)
@@ -32,7 +33,24 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 	request.Header = requestHeaders
 	client := c.getHttpClient()
 
-	return client.Do(request)
+	response, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close() // defering the close of the body until returning it
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	finalResponse := Response{
+		status:     response.Status,
+		statusCode: response.StatusCode,
+		headers:    response.Header,
+		body:       responseBody,
+	}
+	return &finalResponse, nil
 }
 
 func (c *httpClient) getHttpClient() *http.Client {
