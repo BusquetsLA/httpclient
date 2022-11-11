@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -34,9 +33,10 @@ func getGithubUrls() {
 	}
 
 	lauti := User{"lauti", "busquets"}
-	if err := json.Unmarshal(response.Bytes(), &lauti); err != nil {
+	if err := response.JsonUnmarshal(&lauti); err != nil {
 		panic(err)
 	}
+	fmt.Println(lauti.FirstName)
 
 	// bytes, err := ioutil.ReadAll(response.Body) // no more need for this
 	// if err != nil {

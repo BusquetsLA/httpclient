@@ -1,6 +1,9 @@
 package httpgo
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
 
 type Response struct {
 	status     string
@@ -28,4 +31,8 @@ func (r *Response) Bytes() []byte {
 
 func (r *Response) String() string {
 	return string(r.body)
+}
+
+func (r *Response) JsonUnmarshal(data interface{}) error {
+	return json.Unmarshal(r.Bytes(), data)
 }
