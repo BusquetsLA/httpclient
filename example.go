@@ -18,12 +18,13 @@ type User struct {
 
 func main() {
 	// lauti := User{"lauti", "busquets"}
-
-	for i := 0; i < 10; i++ {
-		go func() {
-			getGithubUrls()
-		}()
-	}
+	// for i := 0; i < 10; i++ {
+	// 	go func() {
+	// 		getGithubUrls()
+	// 	}()
+	// }
+	getGithubUrls()
+	getGithubUrls()
 }
 
 func getGithubUrls() {
@@ -31,19 +32,12 @@ func getGithubUrls() {
 	if err != nil {
 		panic(err)
 	}
-
 	lauti := User{"lauti", "busquets"}
 	if err := response.JsonUnmarshal(&lauti); err != nil {
 		panic(err)
 	}
 	fmt.Println(lauti.FirstName)
-
-	// bytes, err := ioutil.ReadAll(response.Body) // no more need for this
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	fmt.Printf("status code recieved: %v, response body: %v", response.StatusCode(), response.String())
+	fmt.Printf("status code recieved: %v, %v, response body: %v", response.Status(), response.StatusCode(), response.String())
 }
 
 func getGithubClient() httpgo.Client {
