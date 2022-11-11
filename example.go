@@ -1,8 +1,8 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"time"
 
 	"github.com/BusquetsLA/httpclient/httpgo"
@@ -18,8 +18,7 @@ type User struct {
 }
 
 func main() {
-	lauti := User{"lauti", "busquets"}
-	createUser(lauti)
+	// lauti := User{"lauti", "busquets"}
 
 	for i := 0; i < 10; i++ {
 		go func() {
@@ -28,32 +27,23 @@ func main() {
 	}
 }
 
-func createUser(user User) {
-	response, err := githubClient.Post("https://api.github.com", nil, user) // ofc returns 404
-	if err != nil {
-		panic(err)
-	}
-
-	bytes, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("status code recieved: %v, response body: %v", response.StatusCode, string(bytes))
-}
-
 func getGithubUrls() {
 	response, err := githubClient.Get("https://api.github.com", nil)
 	if err != nil {
 		panic(err)
 	}
 
-	bytes, err := ioutil.ReadAll(response.Body)
-	if err != nil {
+	lauti := User{"lauti", "busquets"}
+	if err := json.Unmarshal(response.Bytes(), &lauti); err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("status code recieved: %v, response body: %v", response.StatusCode, string(bytes))
+	// bytes, err := ioutil.ReadAll(response.Body) // no more need for this
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	fmt.Printf("status code recieved: %v, response body: %v", response.StatusCode(), response.String())
 }
 
 func getGithubClient() httpgo.Client {
@@ -61,16 +51,6 @@ func getGithubClient() httpgo.Client {
 		SetConnTimeout(2 * time.Second).
 		DisableTimeouts(true).
 		Build() // to create a client with all the configuration from the begining, has to end with Build()
-
-	// builder := httpgo.New()
-
-	// builder.DisableTimeouts(true)
-	// builder.SetConnTimeout(2 * time.Second)
-	// builder.SetResTimeout(50 * time.Millisecond) // this would return timeout
-	// // builder.SetHeaders(standardHeaders)
-
-	// standardHeaders := make(http.Header)
-	// standardHeaders.Set("Accept", "application/json")
 
 	return client
 }
