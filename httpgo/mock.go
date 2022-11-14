@@ -1,9 +1,5 @@
 package httpgo
 
-var (
-	mocks map[string]*Mock
-)
-
 type Mock struct {
 	Method        string
 	Url           string
@@ -12,9 +8,4 @@ type Mock struct {
 	Headers       string
 	Error         error
 	ResStatusCode int
-}
-
-func AddMock(mock Mock) {
-	key := mock.Method + mock.Url + mock.ResBody
-	mocks[key] = &mock
 }
