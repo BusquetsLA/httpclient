@@ -31,6 +31,5 @@ func GetEndpoints() (*Endpoints, error) { // Get
 		return nil, err
 	}
 
-	fmt.Printf("Repository URL: %s", endpoints.RepositoryUrl)
 	return &endpoints, nil
 }
