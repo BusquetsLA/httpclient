@@ -8,7 +8,6 @@ import (
 func TestGetRequestHeaders(t *testing.T) { // rule of thumb for % of coverage: 1 test case for every return that the function has
 	// Initialization:
 	client := httpClient{}
-
 	tests := []struct {
 		name string // key of the header
 		want string // value of the header
@@ -20,6 +19,9 @@ func TestGetRequestHeaders(t *testing.T) { // rule of thumb for % of coverage: 1
 	requestHeaders := make(http.Header)
 	for _, tt := range tests {
 		requestHeaders.Set(tt.name, tt.want)
+	}
+	client.builder = &clientBuilder{
+		headers: requestHeaders,
 	}
 
 	// Execution:
@@ -83,3 +85,36 @@ func TestGetRequestBody(t *testing.T) {
 // func TestGetResTimeout(t *testing.T)  {}
 // func TestGetConnTimeout(t *testing.T) {}
 // func TestGetMaxIdleConn(t *testing.T) {}
+// func TestGetRequestHeaders(t *testing.T) { // rule of thumb for % of coverage: 1 test case for every return that the function has
+// 	// Initialization:
+// 	client := httpClient{}
+
+// 	tests := []struct {
+// 		name string // key of the header
+// 		want string // value of the header
+// 	}{
+// 		{"Content-Type", "application/json"},
+// 		{"User-Agent", "BusquetsLA"},
+// 		{"Accept", "*/*"},
+// 	}
+// 	requestHeaders := make(http.Header)
+// 	for _, tt := range tests {
+// 		requestHeaders.Set(tt.name, tt.want)
+// 	}
+
+// 	// Execution:
+// 	finalHeaders := client.getRequestHeaders(requestHeaders) // the final list with every added header
+
+// 	// Validation:
+// 	want := len(tests) // amount of headers set in the test
+// 	if got := len(finalHeaders); got != want {
+// 		t.Errorf("expected %d headers, got %d", want, got)
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			if got := finalHeaders.Get(tt.name); got != tt.want {
+// 				t.Errorf("invalid %s header recieved", tt.name)
+// 			}
+// 		})
+// 	}
+// }
