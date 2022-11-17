@@ -31,10 +31,17 @@ func StartMockServer() {
 	defer server.mutex.Unlock() // and when the function finishes it unlocks the mutex, pegarle una leida a esto igual
 	server.enable = true
 }
+
 func StopMockServer() {
 	server.mutex.Lock()
 	defer server.mutex.Unlock()
 	server.enable = false
+}
+
+func ClearMockServer() { // empties the server of mocks
+	server.mutex.Lock()
+	defer server.mutex.Unlock()
+	server.mocks = make(map[string]*Mock)
 }
 
 func (m *mockServer) getMockKey(method, url, body string) string {
