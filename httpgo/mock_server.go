@@ -1,7 +1,10 @@
 package httpgo
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"strings"
 	"sync"
 )
 
@@ -45,7 +48,20 @@ func ClearMockServer() { // empties the server of mocks
 }
 
 func (m *mockServer) getMockKey(method, url, body string) string {
-	return method + url + body
+	hasher := md5.New()
+	hasher.Write([]byte(method + url + m.clearBody(body)))
+	key := hex.EncodeToString(hasher.Sum(nil)) // O.o
+	return key
+}
+
+func (m *mockServer) clearBody(body string) string {
+	body = strings.TrimSpace(body)
+	if body == "" {
+		return ""
+	}
+	body = strings.ReplaceAll(body, "\t", "")
+	body = strings.ReplaceAll(body, "\n", "")
+	return body
 }
 
 func (m *mockServer) getMock(method, url, body string) *Mock {
