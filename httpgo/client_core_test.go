@@ -3,11 +3,12 @@ package httpgo
 import (
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestGetRequestHeaders(t *testing.T) { // rule of thumb for % of coverage: 1 test case for every return that the function has
-	// Initialization:
 	client := httpClient{}
+
 	tests := []struct {
 		name string // key of the header
 		want string // value of the header
@@ -24,10 +25,8 @@ func TestGetRequestHeaders(t *testing.T) { // rule of thumb for % of coverage: 1
 		headers: requestHeaders,
 	}
 
-	// Execution:
 	finalHeaders := client.getRequestHeaders(requestHeaders) // the final list with every added header
 
-	// Validation:
 	want := len(tests) // amount of headers set in the test
 	if got := len(finalHeaders); got != want {
 		t.Errorf("expected %d headers, got %d", want, got)
@@ -80,41 +79,74 @@ func TestGetRequestBody(t *testing.T) {
 	}
 }
 
+func TestGetResTimeout(t *testing.T) {
+	client := httpClient{}
+
+	client.builder = &clientBuilder{}
+	timeout := client.getResTimeout()
+	if timeout != defaultResTimeout {
+		t.Error("expected default timeout")
+	}
+
+	client.builder = &clientBuilder{
+		resTimeout: 3 * time.Second,
+	}
+	newTimeout := client.getResTimeout()
+	if newTimeout != 3*time.Second {
+		t.Errorf("expected %v, got %v", 3*time.Second, timeout)
+	}
+
+	client.builder = &clientBuilder{
+		disTimeout: true,
+	}
+	if client.builder.resTimeout != 0 {
+		t.Errorf("expected no timeout, got %v", client.builder.resTimeout)
+	}
+
+}
+
+func TestGetConnTimeout(t *testing.T) {
+	client := httpClient{}
+
+	client.builder = &clientBuilder{}
+	timeout := client.getConnTimeout()
+	if timeout != defaultConnTimeout {
+		t.Error("expected default timeout")
+	}
+
+	client.builder = &clientBuilder{
+		connTimeout: 3 * time.Second,
+	}
+	newTimeout := client.getConnTimeout()
+	if newTimeout != 3*time.Second {
+		t.Errorf("expected %v, got %v", 3*time.Second, timeout)
+	}
+
+	client.builder = &clientBuilder{
+		disTimeout: true,
+	}
+	if client.builder.resTimeout != 0 {
+		t.Errorf("expected no timeout, got %v", client.builder.connTimeout)
+	}
+}
+
+func TestGetMaxIdleConn(t *testing.T) {
+	client := httpClient{}
+
+	client.builder = &clientBuilder{}
+	idleConn := client.getMaxIdleConn()
+	if idleConn != defaultMaxIdleConn {
+		t.Error("expected default max idle connections")
+	}
+
+	client.builder = &clientBuilder{
+		maxIdleConns: 10,
+	}
+	newIdleConn := client.getMaxIdleConn()
+	if newIdleConn != 10 {
+		t.Errorf("expected %v max idle connections, got %v", 10, idleConn)
+	}
+}
+
 // func TestDo(t *testing.T)             {}
 // func TestGetHttpClient(t *testing.T)  {}
-// func TestGetResTimeout(t *testing.T)  {}
-// func TestGetConnTimeout(t *testing.T) {}
-// func TestGetMaxIdleConn(t *testing.T) {}
-// func TestGetRequestHeaders(t *testing.T) { // rule of thumb for % of coverage: 1 test case for every return that the function has
-// 	// Initialization:
-// 	client := httpClient{}
-
-// 	tests := []struct {
-// 		name string // key of the header
-// 		want string // value of the header
-// 	}{
-// 		{"Content-Type", "application/json"},
-// 		{"User-Agent", "BusquetsLA"},
-// 		{"Accept", "*/*"},
-// 	}
-// 	requestHeaders := make(http.Header)
-// 	for _, tt := range tests {
-// 		requestHeaders.Set(tt.name, tt.want)
-// 	}
-
-// 	// Execution:
-// 	finalHeaders := client.getRequestHeaders(requestHeaders) // the final list with every added header
-
-// 	// Validation:
-// 	want := len(tests) // amount of headers set in the test
-// 	if got := len(finalHeaders); got != want {
-// 		t.Errorf("expected %d headers, got %d", want, got)
-// 	}
-// 	for _, tt := range tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			if got := finalHeaders.Get(tt.name); got != tt.want {
-// 				t.Errorf("invalid %s header recieved", tt.name)
-// 			}
-// 		})
-// 	}
-// }
