@@ -25,6 +25,10 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 		return nil, errors.New("unable to create request body")
 	}
 
+	if mock := server.getMock(method, url, string(requestBody)); mock != nil {
+		return mock.GetResponse()
+	}
+
 	request, err := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
 	if err != nil {
 		return nil, errors.New("unable to create new request")
