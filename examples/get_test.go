@@ -2,15 +2,22 @@ package examples
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/BusquetsLA/httpclient/httpgo"
 )
 
+func TestMain(m *testing.M) {
+	fmt.Println("start test cases for pkg 'examples'")
+	httpgo.StartMockServer() // any request made to the library will be done on mock
+	os.Exit(m.Run())
+}
+
 func TestGetEndpoints(t *testing.T) {
-	httpgo.StartMockServer() // to mock any request that comes in the test
 	t.Run("TestErrorFetchingFromGithub", func(t *testing.T) {
 		httpgo.AddMock(httpgo.Mock{
 			Method: http.MethodGet,
@@ -25,6 +32,7 @@ func TestGetEndpoints(t *testing.T) {
 			t.Errorf("error expected: %v", err.Error())
 		}
 		if err.Error() != "this is a mock and we need an error" {
+			// fmt.Println(err.Error())
 			t.Error("invalid error message recieved")
 		}
 	})

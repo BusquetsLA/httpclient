@@ -1,6 +1,9 @@
 package httpgo
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 var (
 	server = mockServer{
@@ -39,5 +42,15 @@ func (m *mockServer) getMockKey(method, url, body string) string {
 }
 
 func (m *mockServer) getMock(method, url, body string) *Mock {
-	return m.mocks[m.getMockKey(method, url, body)]
+	if !m.enable { // if there isn't a mock the library will make the call to the api
+		return nil
+	}
+
+	if mock := m.mocks[m.getMockKey(method, url, body)]; mock != nil {
+		return mock
+	}
+
+	return &Mock{
+		Error: fmt.Errorf("no mock matching %s from '%s' with given body", method, url),
+	}
 }
