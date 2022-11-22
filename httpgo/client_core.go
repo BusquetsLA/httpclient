@@ -117,21 +117,21 @@ func (c *httpClient) getMaxIdleConn() int {
 }
 
 func (c *httpClient) getResTimeout() time.Duration {
+	if c.builder.disTimeout { // now it checks for disable timeouts first
+		return 0
+	}
 	if c.builder.resTimeout > 0 {
 		return c.builder.resTimeout
-	}
-	if c.builder.disTimeout {
-		return 0
 	}
 	return defaultResTimeout
 }
 
 func (c *httpClient) getConnTimeout() time.Duration {
+	if c.builder.disTimeout { // now it checks for disable timeouts first
+		return 0
+	}
 	if c.builder.connTimeout > 0 {
 		return c.builder.connTimeout
-	}
-	if c.builder.disTimeout {
-		return 0
 	}
 	return defaultConnTimeout
 }

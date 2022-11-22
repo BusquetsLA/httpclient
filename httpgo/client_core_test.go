@@ -82,57 +82,55 @@ func TestGetRequestBody(t *testing.T) {
 func TestGetResTimeout(t *testing.T) {
 	client := httpClient{}
 	client.builder = &clientBuilder{}
-	t.Run("DefaultResponseTimeout", func(t *testing.T) {
-		timeout := client.getResTimeout()
-		if timeout != defaultResTimeout {
-			t.Error("expected default timeout")
-		}
-	})
-	t.Run("CustomResponseTimeout", func(t *testing.T) {
-		client.builder = &clientBuilder{
-			resTimeout: 3 * time.Second,
-		}
-		timeout := client.getResTimeout()
-		if timeout != 3*time.Second {
-			t.Errorf("expected %v, got %v", 3*time.Second, timeout)
-		}
-	})
-	t.Run("DisabledResponseTimeout", func(t *testing.T) {
-		client.builder = &clientBuilder{
-			disTimeout: true,
-		}
-		if client.builder.resTimeout != 0 {
-			t.Errorf("expected no timeout, got %v", client.builder.resTimeout)
-		}
-	})
+
+	tests := []struct {
+		name            string
+		responseTimeout time.Duration
+		disableTimeouts bool
+		want            time.Duration
+	}{
+		{"Default Response Timeout: ", client.getResTimeout(), false, defaultResTimeout},
+		{"Custom Response Timeout: ", 3 * time.Second, false, 3 * time.Second},
+		{"Disabled Response Timeout: ", client.getResTimeout(), true, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client.builder = &clientBuilder{
+				resTimeout: tt.responseTimeout,
+				disTimeout: tt.disableTimeouts,
+			}
+			if timeout := client.getResTimeout(); timeout != tt.want {
+				t.Errorf("Expected response Timeout of %v, got %v", tt.want, timeout)
+			}
+		})
+	}
 }
 
 func TestGetConnTimeout(t *testing.T) {
 	client := httpClient{}
 	client.builder = &clientBuilder{}
-	t.Run("DefaultConnectionTimeout", func(t *testing.T) {
-		timeout := client.getConnTimeout()
-		if timeout != defaultConnTimeout {
-			t.Error("expected default timeout")
-		}
-	})
-	t.Run("CustomResponseTimeout", func(t *testing.T) {
-		client.builder = &clientBuilder{
-			connTimeout: 3 * time.Second,
-		}
-		timeout := client.getConnTimeout()
-		if timeout != 3*time.Second {
-			t.Errorf("expected %v, got %v", 3*time.Second, timeout)
-		}
-	})
-	t.Run("DisabledResponseTimeout", func(t *testing.T) {
-		client.builder = &clientBuilder{
-			disTimeout: true,
-		}
-		if client.builder.resTimeout != 0 {
-			t.Errorf("expected no timeout, got %v", client.builder.connTimeout)
-		}
-	})
+
+	tests := []struct {
+		name              string
+		connectionTimeout time.Duration
+		disableTimeouts   bool
+		want              time.Duration
+	}{
+		{"Default Connection Timeout: ", client.getConnTimeout(), false, defaultConnTimeout},
+		{"Custom Connection Timeout: ", 10 * time.Second, false, 10 * time.Second},
+		{"Disabled Connection Timeout: ", client.getConnTimeout(), true, 0},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			client.builder = &clientBuilder{
+				connTimeout: tt.connectionTimeout,
+				disTimeout:  tt.disableTimeouts,
+			}
+			if timeout := client.getConnTimeout(); timeout != tt.want {
+				t.Errorf("Expected connection Timeout of %v, got %v", tt.want, timeout)
+			}
+		})
+	}
 }
 
 func TestGetMaxIdleConn(t *testing.T) {
