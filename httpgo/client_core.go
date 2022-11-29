@@ -59,6 +59,10 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 
 func (c *httpClient) getHttpClient() *http.Client {
 	c.clientOnce.Do(func() { // to make the client concurrent safe
+		if c.builder.client != nil {
+			c.client = c.builder.client
+			return // if there is a client already built it will miss the c.client = &http.Client{} to build one
+		}
 		c.client = &http.Client{
 			Timeout: c.getConnTimeout() + c.getResTimeout(), // to configure the overall client timeout
 			Transport: &http.Transport{
