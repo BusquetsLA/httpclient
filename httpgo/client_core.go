@@ -17,7 +17,7 @@ const (
 	defaultConnTimeout = 1 * time.Second
 )
 
-func (c *httpClient) do(method string, url string, headers http.Header, body interface{}) (*Response, error) {
+func (c *httpClient) do(method string, url string, body interface{}, headers http.Header) (*Response, error) {
 	requestHeaders := c.getRequestHeaders(headers) // moved here to have acccess to the headers before creating the request to make the request body
 
 	requestBody, err := c.getRequestBody(requestHeaders.Get("Content-Type"), body)
