@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// Mock structure provides a way to configure HTTP methods based on the combination between request method, URL and request body
 type Mock struct {
 	Method        string
 	Url           string
@@ -15,6 +16,7 @@ type Mock struct {
 	ResStatusCode int
 }
 
+// GetResponse returns a Response object based on the mock configuration
 func (m *Mock) GetResponse() (*Response, error) {
 	if m.Error != nil {
 		return nil, m.Error
