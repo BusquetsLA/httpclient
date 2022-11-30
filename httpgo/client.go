@@ -20,15 +20,6 @@ type Client interface {
 	Options(url string, headers ...http.Header) (*Response, error)
 }
 
-func getHeaders(headers ...http.Header) http.Header {
-	// variadic functions can be called with any number of trailing arguments, but the variadic arg always has to come last
-	// this checks the headers don't come empty and if so it fills them with default headers
-	if len(headers) > 0 {
-		return headers[0]
-	}
-	return http.Header{}
-}
-
 // HTTP Call Methods:
 func (c *httpClient) Get(url string, headers ...http.Header) (*Response, error) {
 	return c.do(http.MethodGet, url, nil, getHeaders(headers...))
