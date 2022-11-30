@@ -54,6 +54,7 @@ func (c *httpClient) do(method string, url string, body interface{}, headers htt
 		headers:    response.Header,
 		body:       responseBody,
 	}
+
 	return &finalResponse, nil
 }
 
@@ -78,6 +79,23 @@ func (c *httpClient) getHttpClient() *http.Client {
 	return c.client
 }
 
+// BODY
+func (c *httpClient) getRequestBody(contentType string, body interface{}) ([]byte, error) {
+	if body == nil {
+		return nil, nil
+	}
+
+	switch contentType {
+	case "application/json":
+		return json.Marshal(body)
+	case "application/xml":
+		return xml.Marshal(body)
+	default:
+		return json.Marshal(body) // TODO: add more cases
+	}
+}
+
+// HEADERS
 func (c *httpClient) getRequestHeaders(headers http.Header) http.Header {
 	result := make(http.Header)
 
@@ -98,25 +116,22 @@ func (c *httpClient) getRequestHeaders(headers http.Header) http.Header {
 	return result
 }
 
-func (c *httpClient) getRequestBody(contentType string, body interface{}) ([]byte, error) {
-	if body == nil {
-		return nil, nil
+func getHeaders(headers ...http.Header) http.Header {
+	// variadic functions can be called with any number of trailing arguments, but the variadic arg always has to come last
+	// this checks the headers don't come empty and if so it fills them with default headers
+	if len(headers) > 0 {
+		return headers[0]
 	}
 
-	switch contentType {
-	case "application/json":
-		return json.Marshal(body)
-	case "application/xml":
-		return xml.Marshal(body)
-	default:
-		return json.Marshal(body) // TODO: add more cases
-	}
+	return http.Header{}
 }
 
+// TIMEOUTS & IDLE CONNECTIONS
 func (c *httpClient) getMaxIdleConn() int {
 	if c.builder.maxIdleConns > 0 {
 		return c.builder.maxIdleConns
 	}
+
 	return defaultMaxIdleConn
 }
 
@@ -124,9 +139,11 @@ func (c *httpClient) getResTimeout() time.Duration {
 	if c.builder.disTimeout { // now it checks for disable timeouts first
 		return 0
 	}
+
 	if c.builder.resTimeout > 0 {
 		return c.builder.resTimeout
 	}
+
 	return defaultResTimeout
 }
 
@@ -134,8 +151,10 @@ func (c *httpClient) getConnTimeout() time.Duration {
 	if c.builder.disTimeout { // now it checks for disable timeouts first
 		return 0
 	}
+
 	if c.builder.connTimeout > 0 {
 		return c.builder.connTimeout
 	}
+
 	return defaultConnTimeout
 }
