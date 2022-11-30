@@ -12,7 +12,6 @@ type clientBuilder struct {
 	maxIdleConns int
 	disTimeout   bool
 	client       *http.Client
-	// baseUrl string ?????
 }
 
 type ClientBuilder interface {
@@ -23,7 +22,7 @@ type ClientBuilder interface {
 	SetResTimeout(timeout time.Duration) ClientBuilder
 	SetMaxIdleConns(maxConns int) ClientBuilder
 	DisableTimeouts(disTimeouts bool) ClientBuilder
-	SetHttpClient(client *http.Client) clientBuilder
+	SetHttpClient(client *http.Client) ClientBuilder
 }
 
 func New() ClientBuilder { // single http client being used every time for every request
