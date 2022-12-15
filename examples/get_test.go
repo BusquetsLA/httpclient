@@ -19,25 +19,28 @@ func TestMain(m *testing.M) {
 
 func TestGetEndpoints(t *testing.T) {
 	t.Run("TestErrorFetchingFromGithub", func(t *testing.T) {
+		errorText := "this is a mock and we need to test when we get an error from github"
 		httpgo.ClearMockServer()
 		httpgo.AddMock(httpgo.Mock{
 			Method: http.MethodGet,
 			Url:    "https://api.github.com",
-			Error:  errors.New("this is a mock and we need an error"),
+			Error:  errors.New(errorText),
 		})
 		endpoints, err := GetEndpoints()
 		if endpoints != nil { // in this case we shouldn't get endpoints because we are forcing a bad call
-			t.Error("no endpoints expected")
+			t.Error("no endpoints expected when we get an error from github")
 		}
 		if err == nil {
-			t.Errorf("error expected: %v", err.Error())
+			t.Error("forcerd error expected")
 		}
-		if err.Error() != "this is a mock and we need an error" {
+		if err.Error() != errorText {
 			// fmt.Println(err.Error())
-			t.Error("invalid error message recieved")
+			t.Errorf(`invalid error message recieved, wanted "%s" but got "%s"`, errorText, err.Error())
 		}
 	})
+
 	t.Run("TestErrorUnmarshalResponseBody", func(t *testing.T) {
+		errorText := "json: cannot unmarshal number into Go struct field"
 		httpgo.ClearMockServer()
 		httpgo.AddMock(httpgo.Mock{
 			Method:        http.MethodGet,
@@ -47,18 +50,19 @@ func TestGetEndpoints(t *testing.T) {
 		})
 		endpoints, err := GetEndpoints()
 		if endpoints != nil { // in this case we shouldn't get endpoints because we are forcing a problem when unmarshaling
-			t.Error("no endpoints expected")
+			t.Error("no endpoints expected when there's an error unmarshaling the response body")
 		}
 		if err == nil {
-			t.Errorf("error expected: %v", err.Error())
+			t.Error("forced error expected")
 		}
-		if !strings.Contains(err.Error(), "json: cannot unmarshal number into Go struct field") {
+		if !strings.Contains(err.Error(), errorText) {
 			// fmt.Println(err.Error()) // to print the actual error
-			t.Error("invalid error message recieved")
+			t.Errorf(`invalid error message recieved, wanted "%s" but got "%s"`, errorText, err.Error())
 		}
-
 	})
+
 	t.Run("TestNoError", func(t *testing.T) {
+		currentUserUrl := "https://api.github.com/user"
 		httpgo.ClearMockServer()
 		httpgo.AddMock(httpgo.Mock{
 			Method:        http.MethodGet,
@@ -68,13 +72,13 @@ func TestGetEndpoints(t *testing.T) {
 		})
 		endpoints, err := GetEndpoints()
 		if err != nil {
-			t.Errorf("no error expected, but got: %v", err.Error())
+			t.Errorf(`no error expected, but got "%s"`, err.Error())
 		}
-		if endpoints == nil { // in this case we shouldn't get endpoints because we are forcing a problem when unmarshaling
-			t.Error("endpoints expected, but got nil")
+		if endpoints == nil {
+			t.Error(`endpoints expected, but got "<nil>"`)
 		}
-		if endpoints.CurrentUserUrl != "https://api.github.com/user" {
-			t.Error("invalid current user url")
+		if endpoints.CurrentUserUrl != currentUserUrl {
+			t.Errorf(`invalid current user url, wanted "%s" but got "%s"`, currentUserUrl, endpoints.CurrentUserUrl)
 		}
 	})
 }
