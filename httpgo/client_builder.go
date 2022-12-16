@@ -13,6 +13,7 @@ type clientBuilder struct {
 	maxIdleConns int
 	disTimeout   bool
 	client       *http.Client
+	userAgent    string
 }
 
 type ClientBuilder interface {
@@ -24,6 +25,7 @@ type ClientBuilder interface {
 	SetMaxIdleConns(maxConns int) ClientBuilder
 	DisableTimeouts(disTimeouts bool) ClientBuilder
 	SetHttpClient(client *http.Client) ClientBuilder
+	SetUserAgent(userAgent string) ClientBuilder
 }
 
 func New() ClientBuilder { // single http client being used every time for every request
@@ -71,5 +73,10 @@ func (c *clientBuilder) DisableTimeouts(disTimeout bool) ClientBuilder {
 // SetHttpClient func allows to use the configuration of a prevous client in a new one
 func (c *clientBuilder) SetHttpClient(client *http.Client) ClientBuilder {
 	c.client = client
+	return c
+}
+
+func (c *clientBuilder) SetUserAgent(userAgent string) ClientBuilder {
+	c.userAgent = userAgent
 	return c
 }

@@ -113,6 +113,13 @@ func (c *httpClient) getRequestHeaders(headers http.Header) http.Header {
 		}
 	}
 
+	// set User-Agent header if it's not configured aready
+	if c.builder.userAgent != "" {
+		if result.Get("User-Agent") != "" {
+			result.Set("User-Agent", c.builder.userAgent)
+		}
+	}
+
 	return result
 }
 
