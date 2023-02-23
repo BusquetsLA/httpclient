@@ -18,16 +18,18 @@ type GithubError struct {
 }
 
 func CreateRepository(req Repository) (*Repository, error) {
-	// bytes, _ := json.Marshal(req)
-	// fmt.Println(string(bytes))
-	// fmt.Println(string(bytes))
+	/*
+		bytes, _ := json.Marshal(req)
+		fmt.Println(string(bytes))
+		fmt.Println(string(bytes))
+	*/
 
 	res, err := httpClient.Post("https://api.github.com/user/repos", req)
 	if err != nil {
 		return nil, err
 	}
 
-	if res.StatusCode() != http.StatusCreated {
+	if res.StatusCode != http.StatusCreated {
 		var gitubError GithubError
 		if err := res.JsonUnmarshal(&gitubError); err != nil {
 			return nil, errors.New("error processing github error response when creating new repository")

@@ -24,7 +24,7 @@ func GetEndpoints() (*Endpoints, error) { // Get
 	if err != nil {
 		return nil, err // deal with errors as needed
 	}
-	fmt.Printf("status code recieved: %v, %v, response body: %v", response.Status(), response.StatusCode(), response.String())
+	fmt.Printf("status code recieved: %v, %v, response body: %v", response.Status, response.StatusCode, response.String())
 
 	var endpoints Endpoints
 	if err := response.JsonUnmarshal(&endpoints); err != nil {

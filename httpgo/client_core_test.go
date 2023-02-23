@@ -153,5 +153,4 @@ func TestGetMaxIdleConn(t *testing.T) {
 	})
 }
 
-// func TestDo(t *testing.T)             {}
 // func TestGetHttpClient(t *testing.T)  {}

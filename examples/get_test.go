@@ -2,26 +2,18 @@ package examples
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
-	"os"
 	"strings"
 	"testing"
 
-	"github.com/BusquetsLA/httpclient/httpgo"
+	"github.com/BusquetsLA/httpclient/mock"
 )
-
-func TestMain(m *testing.M) {
-	fmt.Println("start test cases for pkg 'examples'")
-	httpgo.StartMockServer() // any request made to the library will be done on mock
-	os.Exit(m.Run())
-}
 
 func TestGetEndpoints(t *testing.T) {
 	t.Run("TestErrorFetchingFromGithub", func(t *testing.T) {
 		errorText := "this is a mock and we need to test when we get an error from github"
-		httpgo.ClearMockServer()
-		httpgo.AddMock(httpgo.Mock{
+		mock.DeleteMock()
+		mock.AddMock(mock.Mock{
 			Method: http.MethodGet,
 			Url:    "https://api.github.com",
 			Error:  errors.New(errorText),
@@ -41,8 +33,8 @@ func TestGetEndpoints(t *testing.T) {
 
 	t.Run("TestErrorUnmarshalResponseBody", func(t *testing.T) {
 		errorText := "json: cannot unmarshal number into Go struct field"
-		httpgo.ClearMockServer()
-		httpgo.AddMock(httpgo.Mock{
+		mock.DeleteMock()
+		mock.AddMock(mock.Mock{
 			Method:        http.MethodGet,
 			Url:           "https://api.github.com",
 			ResBody:       `{"current_user_url": 123}`,
@@ -63,8 +55,8 @@ func TestGetEndpoints(t *testing.T) {
 
 	t.Run("TestNoError", func(t *testing.T) {
 		currentUserUrl := "https://api.github.com/user"
-		httpgo.ClearMockServer()
-		httpgo.AddMock(httpgo.Mock{
+		mock.DeleteMock()
+		mock.AddMock(mock.Mock{
 			Method:        http.MethodGet,
 			Url:           "https://api.github.com",
 			ResBody:       `{"current_user_url": "https://api.github.com/user"}`,

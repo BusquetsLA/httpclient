@@ -2,17 +2,25 @@ package examples
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"os"
 	"testing"
 
-	"github.com/BusquetsLA/httpclient/httpgo"
+	"github.com/BusquetsLA/httpclient/mock"
 )
+
+func TestMain(m *testing.M) {
+	fmt.Println("start test cases for pkg 'examples'")
+	mock.StartMockServer() // any request made to the library will be done on mock
+	os.Exit(m.Run())
+}
 
 func TestCreateRepository(t *testing.T) {
 	t.Run("TestErrorPostingInGithub", func(t *testing.T) {
 		errorText := "this is a mock and we need to test when we get an error from github"
-		httpgo.ClearMockServer()
-		httpgo.AddMock(httpgo.Mock{
+		mock.DeleteMock()
+		mock.AddMock(mock.Mock{
 			Method:  http.MethodPost,
 			Url:     "https://api.github.com/user/repos",
 			ReqBody: `{"name":"testing-repository","description":"","private":true}`,
@@ -35,8 +43,8 @@ func TestCreateRepository(t *testing.T) {
 	})
 
 	t.Run("TestNoError", func(t *testing.T) {
-		httpgo.ClearMockServer()
-		httpgo.AddMock(httpgo.Mock{
+		mock.DeleteMock()
+		mock.AddMock(mock.Mock{
 			Method:        http.MethodPost,
 			Url:           "https://api.github.com/user/repos",
 			ReqBody:       `{"name":"testing-repository","private":true}`,
