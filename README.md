@@ -1,17 +1,17 @@
-# http-client-go
+# httpclient
 
-http-client-go provides a simple and flexible way to interact with HTTP calls. It is designed to be lightweight, easy to use, and customizable to fit your specific needs.
+The httpclient module provides a simple and flexible way to interact with HTTP calls. It is designed to be lightweight, easy to use, and customizable to fit your specific needs.
 
 ## Installation
 
-To use http-client-go, you need to have Go installed and set up on your system. Once you have Go installed, you can install http-client-go using the following command:
+To use httpclient, you need to have Go installed and set up on your system. Once you have Go installed, you can install http-client-go using the following command:
 
 ```bash
 go get -u https://github.com/BusquetsLA/http-client-go
 ```
 
 ## Usage
-http-client-go is designed to be easy to use, with sensible defaults and options that can be easily overridden as needed. Here's an example of how to create an HTTP client and make a request:
+httpclient is designed to be easy to use, with sensible defaults and options that can be easily overridden as needed. Here's an example of how to create an HTTP client and make a request:
 
 ```go
 package main
