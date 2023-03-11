@@ -7,7 +7,7 @@ import (
 
 type Repository struct {
 	Name        string `json:"name"`
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 	Private     bool   `json:"private"`
 }
 
@@ -18,27 +18,22 @@ type GithubError struct {
 }
 
 func CreateRepository(req Repository) (*Repository, error) {
-	// bytes, _ := json.Marshal(req)
-	// fmt.Println(string(bytes))
-	// fmt.Println(string(bytes))
-
 	res, err := httpClient.Post("https://api.github.com/user/repos", req)
 	if err != nil {
 		return nil, err
 	}
 
-	if res.StatusCode() != http.StatusCreated {
-		var gitubError GithubError
-		if err := res.JsonUnmarshal(&gitubError); err != nil {
-			return nil, errors.New("error processing github error response when creating new repository")
+	if res.StatusCode != http.StatusCreated {
+		var githubError GithubError
+		if err := res.UnmarshalJson(&githubError); err != nil {
+			return nil, errors.New("error processing github error response when creating a new repository")
 		}
-		return nil, errors.New(gitubError.Message)
+		return nil, errors.New(githubError.Message)
 	}
 
-	var newRepository Repository
-	if err := res.JsonUnmarshal(&newRepository); err != nil {
+	var response Repository
+	if err := res.UnmarshalJson(&response); err != nil {
 		return nil, err
 	}
-
-	return &newRepository, nil
+	return &response, nil
 }

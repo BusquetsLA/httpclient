@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
-	"errors"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/BusquetsLA/httpclient/core"
+	"github.com/BusquetsLA/httpclient/mock"
 )
 
 const (
@@ -17,48 +19,49 @@ const (
 	defaultConnTimeout = 1 * time.Second
 )
 
-func (c *httpClient) do(method string, url string, body interface{}, headers http.Header) (*Response, error) {
-	requestHeaders := c.getRequestHeaders(headers) // moved here to have acccess to the headers before creating the request to make the request body
+func (c *httpClient) do(method string, url string, headers http.Header, body interface{}) (*core.Response, error) {
+	reqHeaders := c.getRequestHeaders(headers) // moved here to have acccess to the headers before creating the request to make the request body
 
-	requestBody, err := c.getRequestBody(requestHeaders.Get("Content-Type"), body)
+	reqBody, err := c.getRequestBody(reqHeaders.Get("Content-Type"), body)
 	if err != nil {
-		return nil, errors.New("unable to create request body")
+		return nil, err
+		// return nil, errors.New("unable to create request body")
 	}
 
-	if mock := server.getMock(method, url, string(requestBody)); mock != nil {
-		return mock.GetResponse()
-	}
-
-	request, err := http.NewRequest(method, url, bytes.NewBuffer(requestBody))
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(reqBody))
 	if err != nil {
-		return nil, errors.New("unable to create new request")
+		return nil, err
+		// return nil, errors.New("unable to create new request")
 	}
 
-	request.Header = requestHeaders
-	client := c.getHttpClient()
+	req.Header = reqHeaders
 
-	response, err := client.Do(request)
+	res, err := c.getHttpClient().Do(req)
 	if err != nil {
 		return nil, err
 	}
 
-	defer response.Body.Close() // defering the close of the body until returning it
-	responseBody, err := ioutil.ReadAll(response.Body)
+	defer res.Body.Close() // defering the close of the body until returning it
+	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	finalResponse := Response{
-		status:     response.Status,
-		statusCode: response.StatusCode,
-		headers:    response.Header,
-		body:       responseBody,
+	response := core.Response{
+		Status:     res.Status,
+		StatusCode: res.StatusCode,
+		Headers:    res.Header,
+		Body:       resBody,
 	}
 
-	return &finalResponse, nil
+	return &response, nil
 }
 
-func (c *httpClient) getHttpClient() *http.Client {
+func (c *httpClient) getHttpClient() core.HttpClient {
+	if mock.MockupServer.IsEnabled() { // if there isn't a mock the library will make the real call to the api
+		return mock.MockupServer.GetMockedClient()
+	}
+
 	c.clientOnce.Do(func() { // to make the client concurrent safe
 		if c.builder.client != nil {
 			c.client = c.builder.client
