@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -9,32 +10,35 @@ import (
 
 type httpClientMock struct{}
 
-func (c *httpClientMock) Do(req *http.Request) (*http.Response, error) {
-	reqBody, err := req.GetBody()
+func (c *httpClientMock) Do(request *http.Request) (*http.Response, error) {
+	requestBody, err := request.GetBody()
 	if err != nil {
 		return nil, err
 	}
-	defer reqBody.Close()
+	defer requestBody.Close()
 
-	body, err := ioutil.ReadAll(reqBody)
+	body, err := ioutil.ReadAll(requestBody)
 	if err != nil {
 		return nil, err
 	}
 
-	var res http.Response
+	var response http.Response
 
-	mock := mockupServer.mocks[mockupServer.getMockKey(req.Method, req.URL.String(), string(body))]
+	mock := MockupServer.mocks[MockupServer.getMockKey(request.Method, request.URL.String(), string(body))]
 	if mock != nil {
 		if mock.Error != nil {
 			return nil, mock.Error
 		}
-		res.Body = ioutil.NopCloser(strings.NewReader(mock.ResBody))
-		res.StatusCode = mock.ResStatusCode
-		res.ContentLength = int64(len(mock.ResBody))
-
-		return &res, nil
+		response.StatusCode = mock.ResponseStatusCode
+		response.Body = ioutil.NopCloser(strings.NewReader(mock.ResponseBody))
+		response.ContentLength = int64(len(mock.ResponseBody))
+		response.Request = request
+		for key, values := range mock.ResponseHeaders {
+			for _, value := range values {
+				response.Header.Add(key, value)
+			}
+		}
+		return &response, nil
 	}
-
-	return nil, fmt.Errorf("no mock matching %s from '%s' with given body", req.Method, req.URL.String())
-	// return nil, errors.New(fmt.Sprintf("no mock matching %s from '%s' with given body", req.Method, req.URL.String()))
+	return nil, errors.New(fmt.Sprintf("no mock matching %s from '%s' with given body", request.Method, request.URL.String()))
 }

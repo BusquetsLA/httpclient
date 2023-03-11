@@ -4,13 +4,6 @@ import (
 	"fmt"
 )
 
-/*
-    "current_user_url": "https://api.github.com/user",
-	"followers_url": "https://api.github.com/user/followers",
-	"following_url": "https://api.github.com/user/following{/target}",
-	"user_url": "https://api.github.com/users/{user}",
-    "repository_url": "https://api.github.com/repos/{owner}/{repo}",
-*/
 type Endpoints struct {
 	CurrentUserUrl string `json:"current_user_url"`
 	FollowersUrl   string `json:"followers_url"`
@@ -22,14 +15,15 @@ type Endpoints struct {
 func GetEndpoints() (*Endpoints, error) { // Get
 	response, err := httpClient.Get("https://api.github.com", nil)
 	if err != nil {
-		return nil, err // deal with errors as needed
+		return nil, err
 	}
 	fmt.Printf("status code recieved: %v, %v, response body: %v", response.Status, response.StatusCode, response.String())
 
 	var endpoints Endpoints
-	if err := response.JsonUnmarshal(&endpoints); err != nil {
+	if err := response.UnmarshalJson(&endpoints); err != nil {
 		return nil, err
 	}
 
+	fmt.Printf("repository URL: %s", endpoints.RepositoryUrl)
 	return &endpoints, nil
 }

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
-	"errors"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -20,29 +19,30 @@ const (
 	defaultConnTimeout = 1 * time.Second
 )
 
-func (c *httpClient) do(method string, url string, body interface{}, headers http.Header) (*core.Response, error) {
+func (c *httpClient) do(method string, url string, headers http.Header, body interface{}) (*core.Response, error) {
 	reqHeaders := c.getRequestHeaders(headers) // moved here to have acccess to the headers before creating the request to make the request body
 
 	reqBody, err := c.getRequestBody(reqHeaders.Get("Content-Type"), body)
 	if err != nil {
-		return nil, errors.New("unable to create request body")
+		return nil, err
+		// return nil, errors.New("unable to create request body")
 	}
 
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(reqBody))
 	if err != nil {
-		return nil, errors.New("unable to create new request")
+		return nil, err
+		// return nil, errors.New("unable to create new request")
 	}
 
 	req.Header = reqHeaders
-	client := c.getHttpClient()
 
-	res, err := client.Do(req)
+	res, err := c.getHttpClient().Do(req)
 	if err != nil {
 		return nil, err
 	}
 
 	defer res.Body.Close() // defering the close of the body until returning it
-	responseBody, err := ioutil.ReadAll(res.Body)
+	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -51,15 +51,15 @@ func (c *httpClient) do(method string, url string, body interface{}, headers htt
 		Status:     res.Status,
 		StatusCode: res.StatusCode,
 		Headers:    res.Header,
-		Body:       responseBody,
+		Body:       resBody,
 	}
 
 	return &response, nil
 }
 
 func (c *httpClient) getHttpClient() core.HttpClient {
-	if mock.IsMockServerEnabled() { // if there isn't a mock the library will make the real call to the api
-		return mock.GetMockedClient()
+	if mock.MockupServer.IsEnabled() { // if there isn't a mock the library will make the real call to the api
+		return mock.MockupServer.GetMockedClient()
 	}
 
 	c.clientOnce.Do(func() { // to make the client concurrent safe

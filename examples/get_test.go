@@ -2,18 +2,26 @@ package examples
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/BusquetsLA/httpclient/mock"
 )
 
+func TestMain(m *testing.M) {
+	fmt.Println("start test cases for pkg 'examples'")
+	mock.MockupServer.Start() // any request made to the HTTP library will be done on mock
+	os.Exit(m.Run())
+}
+
 func TestGetEndpoints(t *testing.T) {
 	t.Run("TestErrorFetchingFromGithub", func(t *testing.T) {
 		errorText := "this is a mock and we need to test when we get an error from github"
-		mock.DeleteMock()
-		mock.AddMock(mock.Mock{
+		mock.MockupServer.DeleteMocks()
+		mock.MockupServer.AddMock(mock.Mock{
 			Method: http.MethodGet,
 			Url:    "https://api.github.com",
 			Error:  errors.New(errorText),
@@ -33,12 +41,12 @@ func TestGetEndpoints(t *testing.T) {
 
 	t.Run("TestErrorUnmarshalResponseBody", func(t *testing.T) {
 		errorText := "json: cannot unmarshal number into Go struct field"
-		mock.DeleteMock()
-		mock.AddMock(mock.Mock{
-			Method:        http.MethodGet,
-			Url:           "https://api.github.com",
-			ResBody:       `{"current_user_url": 123}`,
-			ResStatusCode: http.StatusOK,
+		mock.MockupServer.DeleteMocks()
+		mock.MockupServer.AddMock(mock.Mock{
+			Method:             http.MethodGet,
+			Url:                "https://api.github.com",
+			ResponseBody:       `{"current_user_url": 123}`,
+			ResponseStatusCode: http.StatusOK,
 		})
 		endpoints, err := GetEndpoints()
 		if endpoints != nil { // in this case we shouldn't get endpoints because we are forcing a problem when unmarshaling
@@ -55,12 +63,12 @@ func TestGetEndpoints(t *testing.T) {
 
 	t.Run("TestNoError", func(t *testing.T) {
 		currentUserUrl := "https://api.github.com/user"
-		mock.DeleteMock()
-		mock.AddMock(mock.Mock{
-			Method:        http.MethodGet,
-			Url:           "https://api.github.com",
-			ResBody:       `{"current_user_url": "https://api.github.com/user"}`,
-			ResStatusCode: http.StatusOK,
+		mock.MockupServer.DeleteMocks()
+		mock.MockupServer.AddMock(mock.Mock{
+			Method:             http.MethodGet,
+			Url:                "https://api.github.com",
+			ResponseBody:       `{"current_user_url": "https://api.github.com/user"}`,
+			ResponseStatusCode: http.StatusOK,
 		})
 		endpoints, err := GetEndpoints()
 		if err != nil {
@@ -69,7 +77,7 @@ func TestGetEndpoints(t *testing.T) {
 		if endpoints == nil {
 			t.Error(`endpoints expected, but got "<nil>"`)
 		}
-		if endpoints.CurrentUserUrl != currentUserUrl {
+		if currentUserUrl != endpoints.CurrentUserUrl {
 			t.Errorf(`invalid current user url, wanted "%s" but got "%s"`, currentUserUrl, endpoints.CurrentUserUrl)
 		}
 	})

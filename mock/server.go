@@ -10,60 +10,68 @@ import (
 )
 
 var (
-	mockupServer = mockServer{ // contains all the mocks
+	MockupServer = mockServer{
 		mocks:      make(map[string]*Mock),
 		httpClient: &httpClientMock{},
 	}
 )
 
 type mockServer struct {
-	enable     bool
-	mutex      sync.Mutex
-	mocks      map[string]*Mock
+	enabled     bool
+	serverMutex sync.Mutex
+
 	httpClient core.HttpClient
+
+	mocks map[string]*Mock
 }
 
-func StartMockServer() {
-	// if i didn't get that wrong, this would ensure that no matter the ammount of goroutines that reach the function
+func (m *mockServer) Start() {
+	// this would ensure that no matter the ammount of goroutines that reach the function
 	// only one goes through and the other ones stay in the Lock(), until it's unlocked and then another one goes and so on
-	mockupServer.mutex.Lock()         // so one goroutine goes past this point and the others get locked
-	defer mockupServer.mutex.Unlock() // and when the function finishes it unlocks the mutex, pegarle una leida a esto igual
-	mockupServer.enable = true
+	// so one goroutine goes past this point and the others get locked
+	// and when the function finishes it unlocks the mutex, pegarle una leida a esto igual
+	m.serverMutex.Lock()
+	defer m.serverMutex.Unlock()
+
+	m.enabled = true
 }
 
-func StopMockServer() {
-	// stops the mock server, when doing requests with the mock server stopped (mockupServer.enable = false)
+func (m *mockServer) Stop() {
+	// stops the mock server, when doing requests with the mock server stopped (m.enable = false)
 	// the real endpoint will be called when making a request
-	mockupServer.mutex.Lock()
-	defer mockupServer.mutex.Unlock()
-	mockupServer.enable = false
+	m.serverMutex.Lock()
+	defer m.serverMutex.Unlock()
+
+	m.enabled = false
 }
 
-func AddMock(mock Mock) {
-	mockupServer.mutex.Lock()
-	defer mockupServer.mutex.Unlock()
-	key := mockupServer.getMockKey(mock.Method, mock.Url, mock.ReqBody)
-	mockupServer.mocks[key] = &mock
+func (m *mockServer) IsEnabled() bool {
+	return m.enabled
 }
 
-func DeleteMock() { // empties the mockupServer of mocks
-	mockupServer.mutex.Lock()
-	defer mockupServer.mutex.Unlock()
-	mockupServer.mocks = make(map[string]*Mock)
+func (m *mockServer) GetMockedClient() core.HttpClient {
+	return m.httpClient
 }
 
-func IsMockServerEnabled() bool { // when mockupServer.enable = true the http requests made will be done to the mock server
-	return mockupServer.enable
+func (m *mockServer) DeleteMocks() {
+	m.serverMutex.Lock()
+	defer m.serverMutex.Unlock()
+
+	m.mocks = make(map[string]*Mock)
 }
 
-func GetMockedClient() core.HttpClient {
-	return mockupServer.httpClient
+func (m *mockServer) AddMock(mock Mock) {
+	m.serverMutex.Lock()
+	defer m.serverMutex.Unlock()
+
+	key := m.getMockKey(mock.Method, mock.Url, mock.RequestBody)
+	m.mocks[key] = &mock
 }
 
 func (m *mockServer) getMockKey(method, url, body string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(method + url + m.clearBody(body)))
-	key := hex.EncodeToString(hasher.Sum(nil)) // O.o
+	key := hex.EncodeToString(hasher.Sum(nil))
 	return key
 }
 
