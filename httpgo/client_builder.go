@@ -5,19 +5,19 @@ import (
 	"time"
 )
 
-// clientBuilder structure provides a way to configure the client, storing a previous client, the headers and other values
+// clientBuilder provides a way to configure the client, storing a previous client, the headers, and other values
 type clientBuilder struct {
-	headers      http.Header // default headers from http pkg
-	connTimeout  time.Duration
-	resTimeout   time.Duration
-	maxIdleConns int
-	disTimeout   bool
-	client       *http.Client
-	userAgent    string
+	headers      http.Header   // HTTP headers
+	connTimeout  time.Duration // connection timeout
+	resTimeout   time.Duration // response timeout
+	maxIdleConns int           // maximum number of idle connections
+	disTimeout   bool          // flag indicating if timeouts are disabled
+	client       *http.Client  // HTTP client
+	userAgent    string        // user agent
 }
 
+// ClientBuilder interface defines the methods for configuring the HTTP client, should be defined only when creating the client
 type ClientBuilder interface {
-	// methods for configuration, should be defined only when creating the client
 	Build() Client
 	SetHeaders(headers http.Header) ClientBuilder
 	SetConnTimeout(timeout time.Duration) ClientBuilder
@@ -28,11 +28,13 @@ type ClientBuilder interface {
 	SetUserAgent(userAgent string) ClientBuilder
 }
 
-func New() ClientBuilder { // single http client being used every time for every request
+// New returns a new instance of ClientBuilder, a single http client being used every time for every request
+func New() ClientBuilder {
 	builder := &clientBuilder{}
 	return builder
 }
 
+// Build returns a new instance of Client
 func (c *clientBuilder) Build() Client {
 	client := httpClient{
 		builder: c,
@@ -40,19 +42,19 @@ func (c *clientBuilder) Build() Client {
 	return &client
 }
 
-// SetHeaders func configures the headers for the client, besides the default headers
+// SetHeaders configures the HTTP headers for the client, besides the default headers
 func (c *clientBuilder) SetHeaders(headers http.Header) ClientBuilder {
 	c.headers = headers
 	return c
 }
 
-// SetConnTimeout func configures the connection timeout for the client
+// SetConnTimeout configures the connection timeout for the client
 func (c *clientBuilder) SetConnTimeout(timeout time.Duration) ClientBuilder {
 	c.connTimeout = timeout
 	return c
 }
 
-// SetResTimeout func configures the response timeout for the client
+// SetResTimeout configures the response timeout for the client
 func (c *clientBuilder) SetResTimeout(timeout time.Duration) ClientBuilder {
 	c.resTimeout = timeout
 	return c
@@ -76,6 +78,7 @@ func (c *clientBuilder) SetHttpClient(client *http.Client) ClientBuilder {
 	return c
 }
 
+// SetUserAgent func configures the user agent for the client
 func (c *clientBuilder) SetUserAgent(userAgent string) ClientBuilder {
 	c.userAgent = userAgent
 	return c
