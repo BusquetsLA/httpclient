@@ -19,13 +19,12 @@ const (
 	defaultConnTimeout = 1 * time.Second
 )
 
-// do is a private method of httpClient that makes the actual HTTP request
+// do is a private method of httpClient that makes the actual HTTP request.
 // do performs an HTTP request with the specified HTTP method and URL.
 // It sets the request headers and body, sends the request, and returns
 // the response or an error if something goes wrong.
 func (c *httpClient) do(method string, url string, headers http.Header, body interface{}) (*core.Response, error) {
 	// Get the request headers to be used for the HTTP request
-	// moved here to have acccess to the headers before creating the request to make the request body
 	reqHeaders := c.getRequestHeaders(headers)
 
 	// Get the request body to be used for the HTTP request
@@ -70,12 +69,12 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 	return &response, nil
 }
 
-// getHttpClient returns the HTTP client to be used for making HTTP requests
+// getHttpClient returns the HTTP client to be used for making HTTP requests.
 // getHttpClient returns an HTTP client instance. If a mock server is enabled,
 // it returns the mocked client. Otherwise, it creates a new HTTP client with
 // the specified timeouts, max idle connections per host, and other settings.
 func (c *httpClient) getHttpClient() core.HttpClient {
-	// If MockupServer is enabled, use the mocked HTTP client instead, if not the library will make the real call to the api
+	// If MockupServer is enabled, use the mocked HTTP client instead, if not the library will make the real call to the API
 	if mock.MockupServer.IsEnabled() {
 		return mock.MockupServer.GetMockedClient()
 	}
@@ -85,7 +84,7 @@ func (c *httpClient) getHttpClient() core.HttpClient {
 		// If a custom client has already been set, use it instead of creating a new one
 		if c.builder.client != nil {
 			c.client = c.builder.client
-			return // if there is a client already built it will miss the c.client = &http.Client{} to build one
+			return // If there is a client already built it will miss the c.client = &http.Client{} to build one
 		}
 
 		// Otherwise, build an HTTP client with the specified configuration for timeout and transport settings.
@@ -154,13 +153,16 @@ func (c *httpClient) getRequestHeaders(headers http.Header) http.Header {
 	return result
 }
 
+// getHeaders function takes in zero or more http.Header arguments using the ... syntax, which is called a variadic parameter.
+// If no argument is provided, the function returns an empty http.Header object.
+// If there is at least one argument, the function returns the first argument as an http.Header object.
 func getHeaders(headers ...http.Header) http.Header {
-	// variadic functions can be called with any number of trailing arguments, but the variadic arg always has to come last
-	// this checks the headers don't come empty and if so it fills them with default headers
 	if len(headers) > 0 {
+		// If the headers are not empty, the first argument is returned as the result
 		return headers[0]
 	}
 
+	// If the headers are empty, a new http.Header object is returned as the result
 	return http.Header{}
 }
 
@@ -170,11 +172,11 @@ func getHeaders(headers ...http.Header) http.Header {
 // If the builder specifies a maximum number of idle connections, that value is returned.
 // Otherwise, the defaultMaxIdleConn constant is returned.
 func (c *httpClient) getMaxIdleConn() int {
-	// check if a maximum number of idle connections is specified
+	// Check if a maximum number of idle connections is specified
 	if c.builder.maxIdleConns > 0 {
 		return c.builder.maxIdleConns
 	}
-	// return the default maximum number of idle connections if no value is specified
+	// Return the default maximum number of idle connections if no value is specified
 	return defaultMaxIdleConn
 }
 
@@ -183,15 +185,15 @@ func (c *httpClient) getMaxIdleConn() int {
 // If the builder has disabled timeouts, this function returns 0.
 // Otherwise, the defaultResTimeout constant is returned.
 func (c *httpClient) getResTimeout() time.Duration {
-	// check if timeouts are disabled
+	// Check if timeouts are disabled
 	if c.builder.disTimeout {
 		return 0
 	}
-	// check if a response timeout is specified
+	// Check if a response timeout is specified
 	if c.builder.resTimeout > 0 {
 		return c.builder.resTimeout
 	}
-	// return the default timeout if no value is specified
+	// Return the default timeout if no value is specified
 	return defaultResTimeout
 }
 
@@ -200,14 +202,14 @@ func (c *httpClient) getResTimeout() time.Duration {
 // If the builder has disabled timeouts, this function returns 0.
 // Otherwise, the defaultConnTimeout constant is returned.
 func (c *httpClient) getConnTimeout() time.Duration {
-	// check if timeouts are disabled
+	// Check if timeouts are disabled
 	if c.builder.disTimeout {
 		return 0
 	}
-	// check if a connection timeout is specified
+	// Check if a connection timeout is specified
 	if c.builder.connTimeout > 0 {
 		return c.builder.connTimeout
 	}
-	// return the default timeout if no value is specified
+	// Return the default timeout if no value is specified
 	return defaultConnTimeout
 }

@@ -9,7 +9,6 @@ import (
 // rule of thumb for % of coverage: 1 test case for every return that the function has
 
 // TestGetRequestHeaders tests the getRequestHeaders method of httpClient.
-
 func TestGetRequestHeaders(t *testing.T) {
 	// Create an instance of httpClient.
 	client := httpClient{}
@@ -56,7 +55,6 @@ func TestGetRequestHeaders(t *testing.T) {
 }
 
 // TestGetRequestBody tests the getRequestBody method of httpClient.
-
 func TestGetRequestBody(t *testing.T) {
 	// Create an instance of httpClient.
 	client := httpClient{}
@@ -99,6 +97,7 @@ func TestGetRequestBody(t *testing.T) {
 	}
 }
 
+// TestGetResTimeout tests the getResTimeout method of the httpClient struct.
 func TestGetResTimeout(t *testing.T) {
 	client := httpClient{}
 	client.builder = &clientBuilder{}
@@ -138,7 +137,7 @@ func TestGetResTimeout(t *testing.T) {
 	}
 }
 
-// TestGetConnTimeout tests the GetConnTimeout method of the httpClient struct.
+// TestGetConnTimeout tests the getConnTimeout method of the httpClient struct.
 func TestGetConnTimeout(t *testing.T) {
 	client := httpClient{}
 	client.builder = &clientBuilder{}
@@ -171,7 +170,7 @@ func TestGetConnTimeout(t *testing.T) {
 	}
 }
 
-// TestGetMaxIdleConn tests the GetMaxIdleConn method of the httpClient struct.
+// TestGetMaxIdleConn tests the getMaxIdleConn method of the httpClient struct.
 func TestGetMaxIdleConn(t *testing.T) {
 	client := httpClient{}
 	client.builder = &clientBuilder{}
