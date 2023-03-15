@@ -51,11 +51,12 @@ func TestCreateRepository(t *testing.T) {
 		if err != nil {
 			t.Errorf("no error expected, but got: %s", err.Error())
 		}
-		if createdRepository == nil {
+		if createdRepository != nil {
+			if createdRepository.Name != repository.Name {
+				t.Errorf(`expected "%s" as new repository name, but github returned "%s"`, repository.Name, createdRepository.Name)
+			}
+		} else {
 			t.Error("new repository expected, but got: nil")
-		}
-		if createdRepository.Name != repository.Name {
-			t.Errorf(`expected "%s" as new repository name, but github returned "%s"`, repository.Name, createdRepository.Name)
 		}
 	})
 }

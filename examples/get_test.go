@@ -74,11 +74,12 @@ func TestGetEndpoints(t *testing.T) {
 		if err != nil {
 			t.Errorf(`no error expected, but got "%s"`, err.Error())
 		}
-		if endpoints == nil {
+		if endpoints != nil {
+			if currentUserUrl != endpoints.CurrentUserUrl {
+				t.Errorf(`invalid current user url, wanted "%s" but got "%s"`, currentUserUrl, endpoints.CurrentUserUrl)
+			}
+		} else {
 			t.Error(`endpoints expected, but got "<nil>"`)
-		}
-		if currentUserUrl != endpoints.CurrentUserUrl {
-			t.Errorf(`invalid current user url, wanted "%s" but got "%s"`, currentUserUrl, endpoints.CurrentUserUrl)
 		}
 	})
 }
