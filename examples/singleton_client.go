@@ -12,18 +12,15 @@ var (
 )
 
 func getHttpClient() httpgo.Client {
-	// client := httpgo.New(). // here goes all the configurations you would like to add
-	// 			Build() // and finish it with build
-	// return client
 
 	headers := make(http.Header)
 
 	// currentClient := http.Client{}
-	client := httpgo.New().
+	client := httpgo.New(). // After this goes all the configurations you would like to add to your client
 		// SetHttpClient(&currentClient).
 		SetHeaders(headers).
 		SetResTimeout(3 * time.Second).
 		SetConnTimeout(3 * time.Second).
-		Build()
+		Build() // And finish it with build
 	return client
 }
