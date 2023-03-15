@@ -33,7 +33,7 @@ func (m *Mock) GetResponse() (*core.Response, error) {
 	}
 
 	// Make sure each mocked response header is present in the final response object:
-	for header, _ := range m.ResponseHeaders {
+	for header := range m.ResponseHeaders {
 		response.Headers.Set(header, m.ResponseHeaders.Get(header))
 	}
 	return &response, nil

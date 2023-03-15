@@ -1,7 +1,6 @@
 package mock
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -40,5 +39,5 @@ func (c *httpClientMock) Do(request *http.Request) (*http.Response, error) {
 		}
 		return &response, nil
 	}
-	return nil, errors.New(fmt.Sprintf("no mock matching %s from '%s' with given body", request.Method, request.URL.String()))
+	return nil, fmt.Errorf("no mock matching %s from '%s' with given body", request.Method, request.URL.String())
 }
