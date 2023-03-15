@@ -4,7 +4,7 @@ The httpclient module provides a simple and flexible way to interact with HTTP c
 
 ## Installation
 
-To use httpclient, you need to have Go installed and set up on your system. Once you have Go installed, you can install http-client-go using the following command:
+To use httpclient, you need to have Go installed and set up on your system. Once you have Go installed, you can install httpclient using the following command:
 
 ```bash
 go get -u https://github.com/BusquetsLA/httpclient
